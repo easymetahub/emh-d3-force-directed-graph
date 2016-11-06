@@ -1,6 +1,11 @@
 # \<emh-d3-force-directed-graph\>
 
 
+## Load the bower components
+
+```
+$ bower update
+```
 
 ## Install the Polymer-CLI
 
