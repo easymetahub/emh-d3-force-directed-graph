@@ -11,7 +11,7 @@
       }
       .general {
         width: 100%;
-        height: 95%;
+        height: 80%;
       }
       .general > div {
         padding: 4px;
@@ -70,6 +70,25 @@
       <div class="relative" style="height: 100%;">
         <svg height="100%" width="100%" id="polymerForce"></svg>
       </div>
+      <template is="dom-if" if="[[showData]]">
+        <div>
+          <table style="background-color: lightgrey; width: 100%;">
+            <thead>
+              <tr>
+                <th>selected node</th>
+                <th colspan="2">selected-link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{selectedNode.id}}</td>
+                <td>{{selectedLink.source.id}}</td>
+                <td>{{selectedLink.target.id}} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
     </div>
   </template>
 
@@ -79,12 +98,20 @@
     var linkEnter;
     var g;
     var color;
+    var d3Polymer;
     
     Polymer({
 
       is: 'emh-d3-force-directed-graph',
 
       properties: {
+      /**
+      * Shows the table below that shows the properties.
+      */
+        showData: {
+          type: Boolean,
+          value: false
+        },
         graph: {
           type: Object,
           notify: true, 
@@ -95,11 +122,11 @@
           ], links: [{ source:0, target: 1 }, { source:1, target: 2 }, { source:2, target: 0 }] },
           observer: '_graphChanged'
         },
-        selected_node: { type: Object, notify: true },
-        mousedown_node: { type: Object },
-        selected_link: { type: Object, notify: true },
-        mousedown_link: { type: Object },
-        mouseup_link: { type: Object }
+        selectedNode: { type: Object, notify: true },
+        mousedownNode: { type: Object },
+        selectedLink: { type: Object, notify: true },
+        mousedownLink: { type: Object },
+        mouseupLink: { type: Object }
         },
       
       created: function() {
@@ -113,28 +140,22 @@
       
       attached: function() {
         console.log(this.localName + '#' + this.id + ' was attached');
+        d3Polymer = this;
+        
         var aa = this.$.polymerForce.getBoundingClientRect();
         var svg_height = aa.height;
         var svg_width = aa.width;
         
         g = d3.select(this.$.polymerForce)
+        .call(d3.zoom().on("zoom", function () {
+        g.attr("transform", d3.event.transform)
+        }))
         .append('g')
-        .style("pointer-events", "all")
         .on("mousemove", this.mousemove)
         .on("mousedown", this.mousedown)
         .on("mouseup", this.mouseup)
         ;
-        d3.select(this.$.polymerForce).append("rect")
-        .attr("width", svg_width)
-        .attr("height", svg_height)
-        .style("fill", "none")
-        .style("pointer-events", "all")
-        .call(d3.zoom()
-        .on("zoom", zoomed));
-        
-        function zoomed() {
-        g.attr("transform", d3.event.transform);
-        }
+
         color = d3.scaleOrdinal(d3.schemeCategory20);
         
         this.force = d3.forceSimulation(this.graph.nodes)
@@ -154,62 +175,62 @@
       _graphChanged: function() {
         console.log("foo");
         if (this.force) {
-          redraw();
+          this.redraw();
         }
       },
       mousedown: function() {
-        if (!this.mousedown_node && !this.mousedown_link) {
+        if (!this.mousedownNode && !this.mousedownLink) {
           // allow panning if nothing is selected
-          g.call(d3.zoom().on("zoom"), rescale);
+          //g.call(d3.zoom().on("zoom"), rescale);
           return;
         }
       },
       
       mousemove: function() {
-        if (!this.mousedown_node) return;
+        if (!this.mousedownNode) return;
         
         // update drag line
         this.drag_line
-        .attr("x1", this.mousedown_node.x)
-        .attr("y1", this.mousedown_node.y)
+        .attr("x1", this.mousedownNode.x)
+        .attr("y1", this.mousedownNode.y)
         .attr("x2", d3.svg.mouse(this)[0])
         .attr("y2", d3.svg.mouse(this)[1]);
       
       },
       
       mouseup: function() {
-        if (this.mousedown_node) {
+        if (this.mousedownNode) {
           // hide drag line
           this.drag_line
           .attr("class", "drag_line_hidden")
           
-          if (!this.mouseup_node) {
+          if (!this.mouseupNode) {
             // add node
             var point = d3.mouse(this),
             nodeEnter = {x: point[0], y: point[1]},
             n = this.graph.nodes.push(nodeEnter);
             
             // select new node
-            this.selected_node = nodeEnter;
-            this.selected_link = null;
+            this.selectedNode = nodeEnter;
+            this.selectedLink = null;
             
             // add link to mousedown node
-            this.graph.links.push({source: mousedown_node, target: nodeEnter});
+            this.graph.links.push({source: mousedownNode, target: nodeEnter});
           }
           
-          redraw();
+          //this.redraw();
         }
         // clear mouse event vars
-        this.mousedown_node = null;
-        this.mouseup_node = null;
-        this.mousedown_link = null;
+        this.mousedownNode = null;
+        this.mouseupNode = null;
+        this.mousedownLink = null;
         //this.resetMouseVars();
       },
       
       resetMouseVars: function() {
-        this.mousedown_node = null;
-        this.mouseup_node = null;
-        this.mousedown_link = null;
+        this.mousedownNode = null;
+        this.mouseupNode = null;
+        this.mousedownLink = null;
       },
       
       tick: function() {
@@ -244,19 +265,19 @@
           .style("pointer-events", "all")
           .on("mousedown", 
                 function(d) { 
-                  this.mousedown_link = d; 
-                  if (this.mousedown_link == this.selected_link) 
-                    this.selected_link = null;
+                  d3Polymer.mousedownLink = d; 
+                  if (d3Polymer.mousedownLink == d3Polymer.selectedLink) 
+                    d3Polymer.selectedLink = null;
                   else 
-                    this.selected_link = this.mousedown_link; 
-                  this.selected_node = null; 
-                  this.redraw(); 
+                    d3Polymer.selectedLink = d3Polymer.mousedownLink; 
+                  d3Polymer.selectedNode = null; 
+                  d3Polymer.redraw(); 
                 }
           )
           ;
           
         linkEnter
-          .classed("link_selected", function(d) { return d === this.selected_link; });
+          .classed("link_selected", function(d) { return d === d3Polymer.selectedLink; });
           
         linkExit = g.selectAll(".link")
         .data(this.graph.links).exit().remove();
@@ -273,46 +294,48 @@
                   // disable zoom
                     //g.call(d3.behavior.zoom().on("zoom"), null);
                     
-                    this.mousedown_node = d;
-                    if (this.mousedown_node == this.selected_node) 
-                      this.selected_node = null;
+                    d3Polymer.mousedownNode = d;
+                    if (d3Polymer.mousedownNode == d3Polymer.selectedNode) 
+                      d3Polymer.selectedNode = null;
                     else 
-                      this.selected_node = this.mousedown_node; 
-                    this.selected_link = null; 
+                      d3Polymer.selectedNode = d3Polymer.mousedownNode; 
+                    d3Polymer.selectedLink = null; 
                     
                     // reposition drag line
-                    this.drag_line
-                        .attr("class", "link")
-                        .attr("x1", mousedown_node.x)
-                        .attr("y1", mousedown_node.y)
-                        .attr("x2", mousedown_node.x)
-                        .attr("y2", mousedown_node.y);
+ //                   d3Polymer.drag_line
+//                        .attr("class", "link")
+//                        .attr("x1", mousedownNode.x)
+//                        .attr("y1", mousedownNode.y)
+//                        .attr("x2", mousedownNode.x)
+//                        .attr("y2", mousedownNode.y);
                     
-                    redraw(); 
+                    //d3Polymer.redraw(); 
                   }
           )
           .on("mousedrag",
                   function(d) {
-                    // redraw();
+                     d3Polymer.redraw();
                   }
           )
           .on("mouseup", 
                   function(d) { 
-                    if (this.mousedown_node) {
-                      this.mouseup_node = d; 
-                      if (this.mouseup_node == this.mousedown_node) { resetMouseVars(); return; }
+                    if (d3Polymer.mousedownNode) {
+                      d3Polymer.mouseupNode = d; 
+                      if (d3Polymer.mouseupNode == d3Polymer.mousedownNode) { d3Polymer.resetMouseVars(); return; }
                       
                       // add link
-                      var link = {source: mousedown_node, target: mouseup_node};
-                      this.graph.links.push(link);
+                      var link = {source: d3Polymer.mousedownNode, target: d3Polymer.mouseupNode};
+                      d3Polymer.graph.links.push(link);
                       
                       // select new link
-                      this.selected_link = link;
-                      this.selected_node = null;
+                      d3Polymer.selectedLink = link;
+                      d3Polymer.selectedNode = null;
                       
                       // enable zoom
-                      g.call(d3.zoom().on("zoom"), this.rescale);
-                      redraw();
+                      g.call(d3.zoom().on("zoom"), function () {
+                      g.attr("transform", d3.event.transform)
+                      });
+                      //d3Polymer.redraw();
                     } 
                   }
           )
@@ -351,20 +374,20 @@
       },
       
       keydown: function() {
-        if (!this.selected_node && !this.selected_link) return;
+        if (!this.selectedNode && !this.selectedLink) return;
         switch (d3.event.keyCode) {
           case 8: // backspace
           case 46: { // delete
-            if (this.selected_node) {
-              this.graph.nodes.splice(this.graph.nodes.indexOf(this.selected_node), 1);
-              spliceLinksForNode(this.selected_node);
+            if (this.selectedNode) {
+              this.graph.nodes.splice(this.graph.nodes.indexOf(this.selectedNode), 1);
+              spliceLinksForNode(this.selectedNode);
             }
-            else if (this.selected_link) {
-              this.graph.links.splice(this.graph.links.indexOf(this.selected_link), 1);
+            else if (this.selectedLink) {
+              this.graph.links.splice(this.graph.links.indexOf(this.selectedLink), 1);
             }
-            this.selected_link = null;
-            this.selected_node = null;
-            redraw();
+            this.selectedLink = null;
+            this.selectedNode = null;
+            //this.redraw();
             break;
           }
         }
