@@ -147,7 +147,9 @@
         var svg_width = aa.width;
         
         g = d3.select(this.$.polymerForce)
-        .call(d3.zoom().on("zoom", function () {
+        .call(d3.zoom()            
+        .scaleExtent([.5, 10])
+        .on("zoom", function () {
         g.attr("transform", d3.event.transform)
         }))
         .append('g')
