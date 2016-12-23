@@ -100,6 +100,29 @@
     var color;
     var d3Polymer;
     
+    function hasClass(el, className) {
+      if (el.classList)
+        return el.classList.contains(className)
+      else
+        return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+    }
+    
+    function addClass(el, className) {
+      if (el.classList)
+        el.classList.add(className)
+      else if (!hasClass(el, className)) 
+        el.className += " " + className
+    }
+    
+    function removeClass(el, className) {
+      if (el.classList)
+        el.classList.remove(className)
+      else if (hasClass(el, className)) {
+        var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+        el.className=el.className.replace(reg, ' ')
+      }
+    }
+    
     Polymer({
 
       is: 'emh-d3-force-directed-graph',
@@ -261,17 +284,20 @@
         linkEnter = g.selectAll(".link")
           .data(this.graph.links).enter()
           .append("line")
-          .attr("class", "link")
+          .attr("class", "link emh-d3-force-directed-graph")
           .attr("stroke", "#666")
           .attr("stroke-width", "5")
           .style("pointer-events", "all")
           .on("mousedown", 
                 function(d) { 
                   d3Polymer.mousedownLink = d; 
-                  if (d3Polymer.mousedownLink == d3Polymer.selectedLink) 
+                  if (d3Polymer.mousedownLink == d3Polymer.selectedLink) { 
                     d3Polymer.selectedLink = null;
-                  else 
+                    removeClass(this, "link_selected");
+                  } else {
                     d3Polymer.selectedLink = d3Polymer.mousedownLink; 
+                    addClass(this, "link_selected");
+                  }
                   d3Polymer.selectedNode = null; 
                   d3Polymer.redraw(); 
                 }
@@ -289,7 +315,7 @@
           .enter().append("circle")
           .attr("fill", function(d) { return color(d.group); })
           .attr("r", 5)
-          .attr("class", "node")
+          .attr("class", "node emh-d3-force-directed-graph")
           .style("pointer-events", "all")
           .on("mousedown", 
                   function(d) { 
@@ -297,10 +323,13 @@
                     //g.call(d3.behavior.zoom().on("zoom"), null);
                     
                     d3Polymer.mousedownNode = d;
-                    if (d3Polymer.mousedownNode == d3Polymer.selectedNode) 
+                    if (d3Polymer.mousedownNode == d3Polymer.selectedNode) {
                       d3Polymer.selectedNode = null;
-                    else 
+                      removeClass(this, "node_selected");
+                    } else {
                       d3Polymer.selectedNode = d3Polymer.mousedownNode; 
+                      addClass(this, "node_selected");
+                    }
                     d3Polymer.selectedLink = null; 
                     
                     // reposition drag line
