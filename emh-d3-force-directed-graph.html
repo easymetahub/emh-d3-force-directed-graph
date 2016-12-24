@@ -68,7 +68,17 @@
     </style>
     <div class="general">
       <div class="relative" style="height: 100%;">
-        <svg height="100%" width="100%" id="polymerForce"></svg>
+        <svg height="100%" width="100%" id="polymerForce">
+          <defs>
+            <marker id="end-arrow" viewBox="0 -5 10 10" refX="15" markerWidth="8" markerHeight="3" orient="auto">
+              <polyline points="6,-6 0,0 6,6" stroke="black" stroke-width="1px" fill="none"></polyline>
+            </marker>
+            <marker id="start-arrow" viewBox="0 -5 10 10" refX="-10" markerWidth="3" markerHeight="3" orient="auto">
+              <path d="M10,-5L0,0L10,5" fill="#000"></path>
+            </marker>
+          </defs>
+          
+        </svg>
       </div>
       <template is="dom-if" if="[[showData]]">
         <div>
@@ -142,10 +152,10 @@
           type: Object,
           notify: true, 
           value:  { nodes: [
-          {id: 0, reflexive: false, group: 0 },
+          {id: 0, reflexive: false, group: 0, x: 25, y: 25, fixed: true },
           {id: 1, reflexive: true, group: 1  },
           {id: 2, reflexive: false, group: 0 }
-          ], links: [{ source:0, target: 1 }, { source:1, target: 2 }, { source:2, target: 0 }] },
+          ], links: [{ source:0, target: 1 }, { source:1, target: 2 }] },
           observer: '_graphChanged'
         },
         selectedNode: { type: Object, notify: true },
@@ -183,9 +193,10 @@
         color = d3.scaleOrdinal(d3.schemeCategory20);
         
         this.force = d3.forceSimulation(this.graph.nodes)
-          .force("link", d3.forceLink(this.graph.links).id(function(d) { return d.id; }))
+          .force("link", d3.forceLink(this.graph.links).id(function(d) { return d.id; }).distance(150))
           .force("charge", d3.forceManyBody())
-          .force("center", d3.forceCenter(svg_width / 2, svg_height / 2));
+          .force("center", d3.forceCenter(svg_width / 2, svg_height / 2))
+          ;
         if (this.force) {
           this.redraw();
         }
@@ -224,6 +235,7 @@
           .data(this.graph.links).enter()
           .append("line")
           .attr("class", "link emh-d3-force-directed-graph")
+          .style('marker-end', 'url(#end-arrow)')
           .attr("stroke", "#666")
           .attr("stroke-width", "5")
           .style("pointer-events", "all")
@@ -252,15 +264,13 @@
         nodeEnter = g.selectAll(".node")
           .data(this.graph.nodes)
           .enter().append("circle")
-          .attr("fill", function(d) { return color(d.group); })
+          .attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; })
           .attr("r", 5)
           .attr("class", "node emh-d3-force-directed-graph")
           .style("pointer-events", "all")
           .on("click", 
                   function(d) { 
-                  // disable zoom
-                    //g.call(d3.behavior.zoom().on("zoom"), null);
-                    
                     d3Polymer.mousedownNode = d;
                     if (d3Polymer.mousedownNode == d3Polymer.selectedNode) {
                       d3Polymer.selectedNode = null;
@@ -270,16 +280,6 @@
                       addClass(this, "node_selected");
                     }
                     d3Polymer.selectedLink = null; 
-                    
-                    // reposition drag line
- //                   d3Polymer.drag_line
-//                        .attr("class", "link")
-//                        .attr("x1", mousedownNode.x)
-//                        .attr("y1", mousedownNode.y)
-//                        .attr("x2", mousedownNode.x)
-//                        .attr("y2", mousedownNode.y);
-                    
-                    //d3Polymer.redraw(); 
                   }
           )
           .call(d3.drag()
