@@ -204,21 +204,7 @@
       },
       dragged: function(d) {
         d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-        
-        for (i = 0 ; i < d3Polymer.graph.links.length; ++i ){
-          link = d3Polymer.graph.links[i];
-          if ( link.target === this ){
-            d3.select(link).attr("x2", d.x).attr("y2", d.y);
-            continue;
-          }
-          
-          if ( link.source === this ){
-            d3.select(link).attr("x1", d.x).attr("y1", d.y);
-          }
-        }
-        
-        
-        d3Polymer.redraw(); 
+        d3Polymer.tick(); 
       },
       
       resetMouseVars: function() {
