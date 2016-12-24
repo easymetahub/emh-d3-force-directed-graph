@@ -159,10 +159,7 @@
           observer: '_graphChanged'
         },
         selectedNode: { type: Object, notify: true },
-        mousedownNode: { type: Object },
-        selectedLink: { type: Object, notify: true },
-        mousedownLink: { type: Object },
-        mouseupLink: { type: Object }
+        selectedLink: { type: Object, notify: true }
         },
       
       created: function() {
@@ -241,22 +238,27 @@
           .style("pointer-events", "all")
           .on("click", 
                 function(d) { 
-                  d3Polymer.mousedownLink = d; 
-                  if (d3Polymer.mousedownLink == d3Polymer.selectedLink) { 
+                var previousOnes = document.getElementsByClassName("node_selected");
+                while (previousOnes.length)
+                previousOnes[0].classList.remove("node_selected");
+                previousOnes = document.getElementsByClassName("link_selected");
+                while (previousOnes.length)
+                previousOnes[0].classList.remove("link_selected");
+                  if (d == d3Polymer.selectedLink) { 
                     d3Polymer.selectedLink = null;
-                    removeClass(this, "link_selected");
                   } else {
-                    d3Polymer.selectedLink = d3Polymer.mousedownLink; 
+                    d3Polymer.selectedLink = d; 
                     addClass(this, "link_selected");
                   }
                   d3Polymer.selectedNode = null; 
-                  d3Polymer.redraw(); 
                 }
           )
           ;
           
         linkEnter
-          .classed("link_selected", function(d) { return d === d3Polymer.selectedLink; });
+          .classed("link_selected", function(d) { 
+                    return d === d3Polymer.selectedLink; 
+                    });
           
         linkExit = g.selectAll(".link")
         .data(this.graph.links).exit().remove();
@@ -271,12 +273,16 @@
           .style("pointer-events", "all")
           .on("click", 
                   function(d) { 
-                    d3Polymer.mousedownNode = d;
-                    if (d3Polymer.mousedownNode == d3Polymer.selectedNode) {
+                  var previousOnes = document.getElementsByClassName("node_selected");
+                  while (previousOnes.length)
+                  previousOnes[0].classList.remove("node_selected");
+                  previousOnes = document.getElementsByClassName("link_selected");
+                  while (previousOnes.length)
+                  previousOnes[0].classList.remove("link_selected");
+                    if (d == d3Polymer.selectedNode) {
                       d3Polymer.selectedNode = null;
-                      removeClass(this, "node_selected");
                     } else {
-                      d3Polymer.selectedNode = d3Polymer.mousedownNode; 
+                      d3Polymer.selectedNode = d; 
                       addClass(this, "node_selected");
                     }
                     d3Polymer.selectedLink = null; 
