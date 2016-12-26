@@ -35,7 +35,8 @@
         height: 100%;
       }
       .node {
-        fill: #000;
+        fill: rgb(237, 223, 13);
+        stroke: rgb(17, 18, 16); 
         cursor: crosshair;
       }
       
@@ -221,13 +222,16 @@
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
         
-        nodeEnter.attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
+        nodeEnter.attr("transform", function(d) { 
+          return "translate(" + d.x + "," + d.y + ")"; 
+        });
       },
       
       // redraw force layout
       redraw: function() {
-
+        if (this.graph == null) return;
+        if (this.graph.nodes.length == 0) return;
+      
         linkEnter = g.selectAll(".link")
           .data(this.graph.links).enter()
           .append("line")
@@ -265,10 +269,7 @@
         
         nodeEnter = g.selectAll(".node")
           .data(this.graph.nodes)
-          .enter().append("circle")
-          .attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; })
-          .attr("r", 5)
+          .enter().append("g")
           .attr("class", "node emh-d3-force-directed-graph")
           .style("pointer-events", "all")
           .on("click", 
@@ -291,6 +292,14 @@
           .call(d3.drag()
           .on("drag", d3Polymer.dragged))
           ;
+          
+          nodeEnter.append("rect")
+          .attr("x", function(d) { return 0; })
+          .attr("y", function(d) { return -5; })
+          .attr("width", function(d) { return 12 * 10; })
+          .attr("height", 18)
+          ;
+                
         
         nodeExit = g.selectAll(".node")
           .data(this.graph.nodes)
