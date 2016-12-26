@@ -71,6 +71,14 @@
       <div class="relative" style="height: 100%;">
         <svg height="100%" width="100%" id="polymerForce">
           <defs>
+            <filter id="drop-shadow" height="130%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+              <feOffset in="blur" dx="5" dy="5" result="offsetBlur"/>
+              <feMerge>
+                <feMergeNode in="offsetBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
             <marker id="end-arrow" viewBox="0 -5 10 10" refX="15" markerWidth="8" markerHeight="3" orient="auto">
               <polyline points="6,-6 0,0 6,6" stroke="black" stroke-width="1px" fill="none"></polyline>
             </marker>
