@@ -161,9 +161,9 @@
           type: Object,
           notify: true, 
           value:  { nodes: [
-          {id: 0, reflexive: false, group: 0, x: 25, y: 25, fixed: true },
-          {id: 1, reflexive: true, group: 1  },
-          {id: 2, reflexive: false, group: 0 }
+          {id: 0, reflexive: false, group: 0, fx: 25, fy: 25, fixed: true },
+          {id: 1, reflexive: true, group: 1, fx: 250, fy: 25, fixed: true   },
+          {id: 2, reflexive: false, group: 0, fx: 475, fy: 25, fixed: true  }
           ], links: [{ source:0, target: 1 }, { source:1, target: 2 }] },
           observer: '_graphChanged'
         },
