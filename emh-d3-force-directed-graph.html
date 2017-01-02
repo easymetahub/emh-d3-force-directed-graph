@@ -41,8 +41,10 @@
       }
       
       .node_selected {
+      /*
         fill: #ff7f0e;
         stroke: #ff7f0e;
+      */
       }
       
       .drag_line {
@@ -251,8 +253,10 @@
           .on("click", 
                 function(d) { 
                 var previousOnes = document.getElementsByClassName("node_selected");
-                while (previousOnes.length)
-                previousOnes[0].classList.remove("node_selected");
+                while (previousOnes.length) {
+                  previousOnes[0].style.filter = null;
+                  previousOnes[0].classList.remove("node_selected");
+                }
                 previousOnes = document.getElementsByClassName("link_selected");
                 while (previousOnes.length)
                 previousOnes[0].classList.remove("link_selected");
@@ -283,8 +287,10 @@
           .on("click", 
                   function(d) { 
                   var previousOnes = document.getElementsByClassName("node_selected");
-                  while (previousOnes.length)
-                  previousOnes[0].classList.remove("node_selected");
+                  while (previousOnes.length) {
+                    previousOnes[0].style.filter = null;
+                    previousOnes[0].classList.remove("node_selected");
+                  }
                   previousOnes = document.getElementsByClassName("link_selected");
                   while (previousOnes.length)
                   previousOnes[0].classList.remove("link_selected");
@@ -293,6 +299,7 @@
                     } else {
                       d3Polymer.selectedNode = d; 
                       addClass(this, "node_selected");
+                      this.style.filter = "url(#drop-shadow)";
                     }
                     d3Polymer.selectedLink = null; 
                   }
