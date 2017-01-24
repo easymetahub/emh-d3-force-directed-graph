@@ -1,43 +1,38 @@
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/owner/my-element)
+
 # \<emh-d3-force-directed-graph\>
 
 
-## Load the bower components
+`emh-d3-force-directed-graph` is a d3.js force directed graph.
+
+
+
+## Installation
 
 ```
-$ bower update
+bower install easymetahub/emh-d3-force-directed-graph --save
 ```
 
-## Install the Polymer-CLI
-
-First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
-
-## Viewing Your Application
+## Usage
 
 ```
-$ polymer serve
+<emh-d3-force-directed-graph></emh-d3-force-directed-graph>
 ```
 
-## Building Your Application
+## Styling
 
-```
-$ polymer build
-```
+The following custom properties and mixins are also available for styling:
 
-This will create a `build/` folder with `bundled/` and `unbundled/` sub-folders
-containing a bundled (Vulcanized) and unbundled builds, both run through HTML,
-CSS, and JS optimizers.
+Custom property | Description | Default
+----------------|-------------|----------
+`--emh-d3-force-directed-graph-background-color` | The background color of the viewer. | `#ddd`
+`--emh-d3-force-directed-graph-border-color` | The color of the border around the viewer | `#73AD21`
 
-You can serve the built versions by giving `polymer serve` a folder to serve
-from:
 
-```
-$ polymer serve build/bundled
-```
+## Credits
 
-## Running Tests
+Loren Cahlander
 
-```
-$ polymer test
-```
+## License
 
-Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
+MIT License
